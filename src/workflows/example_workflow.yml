@@ -4,5 +4,10 @@ steps:
     stepNumber: 1
   - taskType: "analysis"
     stepNumber: 2
+    dependsOn: "polygonArea" # This task depends on the polygonArea task
   - taskType: "notification"
     stepNumber: 3
+    dependsOn: "analysis" # This task depends on the analysis task
+  - taskType: "reportGeneration"
+    stepNumber: 4
+    dependsOn: "notification" # This task depends on the notification task

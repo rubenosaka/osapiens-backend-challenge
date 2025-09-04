@@ -6,7 +6,9 @@ import * as path from "path";
 
 export class DataAnalysisJob implements Job {
   async run(task: Task): Promise<string> {
-    console.log(`Running data analysis for task ${task.taskId}...`);
+    console.log(
+      `[ANALYSIS] Running data analysis for task ${task.taskId} (Step ${task.stepNumber})...`
+    );
 
     try {
       const inputGeometry = JSON.parse(task.geoJson);
@@ -36,15 +38,17 @@ export class DataAnalysisJob implements Job {
 
       for (const country of worldData.features) {
         if (booleanWithin(inputGeometry as any, country.geometry)) {
-          console.log(`The polygon is within ${country.properties.NAME}`);
-          return country.properties.NAME;
+          console.log(
+            `[ANALYSIS] ✅ The polygon is within ${country.properties.name}`
+          );
+          return country.properties.name;
         }
       }
 
       return "No country found";
     } catch (error: any) {
       console.error(
-        `Error running data analysis for task ${task.taskId}:`,
+        `[ANALYSIS] ❌ Error running data analysis for task ${task.taskId}:`,
         error.message
       );
       throw new Error(`Data analysis failed: ${error.message}`);
