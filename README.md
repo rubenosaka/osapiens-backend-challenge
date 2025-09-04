@@ -1,5 +1,7 @@
 # Backend Coding Challenge
 
+> **📝 Implementation Progress**: See [IMPLEMENTATION_NOTES.md](./IMPLEMENTATION_NOTES.md) for detailed progress and technical decisions.
+
 ## Getting Started
 
 1. Fork the Project:
