@@ -78,8 +78,16 @@ export class TaskRunner {
 
       if (anyFailed) {
         currentWorkflow.status = WorkflowStatus.Failed;
+        currentWorkflow.finalResult = await this.generateFinalResult(
+          currentWorkflow,
+          true
+        );
       } else if (allCompleted) {
         currentWorkflow.status = WorkflowStatus.Completed;
+        currentWorkflow.finalResult = await this.generateFinalResult(
+          currentWorkflow,
+          false
+        );
       } else {
         currentWorkflow.status = WorkflowStatus.InProgress;
       }
@@ -128,5 +136,64 @@ export class TaskRunner {
     console.log(
       `[DEPENDENCY] ✅ Dependent task ${task.dependency} completed, proceeding with task ${task.taskId}`
     );
+  }
+
+  private async generateFinalResult(
+    workflow: Workflow,
+    hasFailures: boolean
+  ): Promise<string> {
+    const resultRepository = this.taskRepository.manager.getRepository(Result);
+
+    const tasksWithResults = await Promise.all(
+      workflow.tasks.map(async (task) => {
+        let output = null;
+        let error = null;
+
+        if (task.resultId) {
+          const result = await resultRepository.findOne({
+            where: { resultId: task.resultId },
+          });
+          if (result && result.data) {
+            try {
+              output = JSON.parse(result.data);
+            } catch (e) {
+              output = result.data;
+            }
+          }
+        }
+
+        if (task.status === TaskStatus.Failed) {
+          error = `Task ${task.taskType} failed`;
+        }
+
+        return {
+          taskId: task.taskId,
+          taskType: task.taskType,
+          stepNumber: task.stepNumber,
+          status: task.status,
+          output: output,
+          error: error,
+        };
+      })
+    );
+
+    const finalResult = {
+      workflowId: workflow.workflowId,
+      status: workflow.status,
+      hasFailures: hasFailures,
+      completedAt: new Date().toISOString(),
+      tasks: tasksWithResults,
+      summary: {
+        totalTasks: workflow.tasks.length,
+        completedTasks: workflow.tasks.filter(
+          (t) => t.status === TaskStatus.Completed
+        ).length,
+        failedTasks: workflow.tasks.filter(
+          (t) => t.status === TaskStatus.Failed
+        ).length,
+      },
+    };
+
+    return JSON.stringify(finalResult, null, 2);
   }
 }

@@ -1,11 +1,12 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Task } from "../models/Task";
 import { Result } from "../models/Result";
+import { Workflow } from "../models/Workflow";
 
 const router = Router();
 
-router.get("/tasks", async (req, res) => {
+router.get("/tasks", async (req: Request, res: Response) => {
   try {
     const taskRepository = AppDataSource.getRepository(Task);
     const resultRepository = AppDataSource.getRepository(Result);
