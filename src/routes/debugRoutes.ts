@@ -37,9 +37,11 @@ router.get("/tasks", async (req: Request, res: Response) => {
     );
 
     res.json(tasksWithResults);
+    return;
   } catch (error: any) {
     console.error("Error fetching tasks:", error);
     res.status(500).json({ error: error.message });
+    return;
   }
 });
 
