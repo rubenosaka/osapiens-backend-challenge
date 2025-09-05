@@ -1,0 +1,462 @@
+openapi: 3.0.0
+info:
+  title: Osapiens Backend Challenge API
+  version: 1.0.0
+  description: A comprehensive workflow management system with asynchronous task processing, job execution, and real-time monitoring capabilities.
+  contact:
+    name: Rubén González Aranda
+    email: ruben.gonzalez.aranda@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /analysis:
+    post:
+      summary: Create a new workflow with tasks
+      description: Creates a new workflow with tasks based on the provided GeoJSON data. The workflow will be processed according to the YAML configuration.
+      tags: [Workflows]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisRequest"
+            examples:
+              validPolygon:
+                summary: Valid Polygon Example
+                value:
+                  clientId: "test-client-123"
+                  geoJson:
+                    type: "Polygon"
+                    coordinates:
+                      [
+                        [
+                          [-63.624885020050996, -10.311050368263523],
+                          [-63.624885020050996, -10.367865108370523],
+                          [-63.61278302732815, -10.367865108370523],
+                          [-63.61278302732815, -10.311050368263523],
+                          [-63.624885020050996, -10.311050368263523],
+                        ],
+                      ]
+      responses:
+        "202":
+          description: Workflow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Workflow processing error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workflow/{id}/status:
+    get:
+      summary: Get workflow status
+      description: Retrieves the current status of a workflow including task counts and progress.
+      tags: [Workflows]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+          example: "3433c76d-f226-4c91-afb5-7dfc7accab24"
+      responses:
+        "200":
+          description: Workflow status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowStatus"
+        "400":
+          description: Invalid workflow ID format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workflow/{id}/results:
+    get:
+      summary: Get workflow results
+      description: Retrieves the final results of a completed or failed workflow.
+      tags: [Workflows]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+          example: "3433c76d-f226-4c91-afb5-7dfc7accab24"
+      responses:
+        "200":
+          description: Workflow results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkflowResults"
+        "400":
+          description: Invalid workflow ID format or workflow not completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/workflows:
+    get:
+      summary: Get all workflows
+      description: Retrieves a list of all workflows with their statistics and progress information.
+      tags: [Dashboard]
+      responses:
+        "200":
+          description: Workflows retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    workflowId:
+                      type: string
+                      format: uuid
+                    clientId:
+                      type: string
+                    status:
+                      type: string
+                      enum: [initial, in_progress, completed, failed]
+                    createdAt:
+                      type: string
+                      format: date-time
+                    totalTasks:
+                      type: integer
+                    completedTasks:
+                      type: integer
+                    failedTasks:
+                      type: integer
+                    inProgressTasks:
+                      type: integer
+                    queuedTasks:
+                      type: integer
+                    progress:
+                      type: integer
+                      minimum: 0
+                      maximum: 100
+        "500":
+          description: Internal server error
+
+  /api/workflows/{id}/tasks:
+    get:
+      summary: Get workflow tasks
+      description: Retrieves all tasks for a specific workflow with their results and status.
+      tags: [Dashboard]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Workflow ID
+      responses:
+        "200":
+          description: Workflow tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    taskId:
+                      type: string
+                    taskType:
+                      type: string
+                    status:
+                      type: string
+                    stepNumber:
+                      type: integer
+                    progress:
+                      type: integer
+                    dependency:
+                      type: string
+                      nullable: true
+                    result:
+                      type: object
+                      nullable: true
+                    createdAt:
+                      type: string
+        "500":
+          description: Internal server error
+
+  /api/stats:
+    get:
+      summary: Get dashboard statistics
+      description: Retrieves overall statistics about workflows and tasks in the system.
+      tags: [Dashboard]
+      responses:
+        "200":
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+        "500":
+          description: Internal server error
+
+components:
+  schemas:
+    AnalysisRequest:
+      type: object
+      required: [clientId, geoJson]
+      properties:
+        clientId:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: "^[a-zA-Z0-9_-]+$"
+          description: Client identifier (letters, numbers, hyphens, underscores only)
+          example: test-client-123
+        geoJson:
+          type: object
+          required: [type, coordinates]
+          properties:
+            type:
+              type: string
+              enum: [Polygon, MultiPolygon]
+              description: GeoJSON geometry type
+            coordinates:
+              type: array
+              description: Array of coordinate rings
+              items:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 2
+                  maxItems: 2
+          example:
+            type: Polygon
+            coordinates:
+              [
+                [
+                  [-63.624885020050996, -10.311050368263523],
+                  [-63.624885020050996, -10.367865108370523],
+                  [-63.61278302732815, -10.367865108370523],
+                  [-63.61278302732815, -10.311050368263523],
+                  [-63.624885020050996, -10.311050368263523],
+                ],
+              ]
+
+    WorkflowResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        workflowId:
+          type: string
+          format: uuid
+          example: "3433c76d-f226-4c91-afb5-7dfc7accab24"
+        message:
+          type: string
+          example: "Workflow created and tasks queued from YAML definition."
+        clientId:
+          type: string
+          example: "test-client-123"
+        geoJsonType:
+          type: string
+          example: "Polygon"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00.000Z"
+
+    WorkflowStatus:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        workflowId:
+          type: string
+          format: uuid
+          example: "3433c76d-f226-4c91-afb5-7dfc7accab24"
+        status:
+          type: string
+          enum: [initial, in_progress, completed, failed]
+          example: "in_progress"
+        completedTasks:
+          type: integer
+          example: 2
+        failedTasks:
+          type: integer
+          example: 0
+        totalTasks:
+          type: integer
+          example: 3
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 67
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00.000Z"
+
+    WorkflowResults:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        workflowId:
+          type: string
+          format: uuid
+          example: "3433c76d-f226-4c91-afb5-7dfc7accab24"
+        status:
+          type: string
+          enum: [completed, failed]
+          example: "completed"
+        finalResult:
+          type: object
+          properties:
+            workflowId:
+              type: string
+              format: uuid
+            status:
+              type: string
+            hasFailures:
+              type: boolean
+            completedAt:
+              type: string
+              format: date-time
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  taskId:
+                    type: string
+                  taskType:
+                    type: string
+                  stepNumber:
+                    type: integer
+                  status:
+                    type: string
+                  output:
+                    type: object
+                  error:
+                    type: string
+                    nullable: true
+            summary:
+              type: object
+              properties:
+                totalTasks:
+                  type: integer
+                completedTasks:
+                  type: integer
+                failedTasks:
+                  type: integer
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:35:00.000Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "The provided data is not valid"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "clientId"
+              message:
+                type: string
+                example: "Client ID is required"
+
+    DashboardStats:
+      type: object
+      properties:
+        totalWorkflows:
+          type: integer
+          example: 15
+        totalTasks:
+          type: integer
+          example: 45
+        workflowsByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: string
+        tasksByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: string
+        timestamp:
+          type: string
+          format: date-time

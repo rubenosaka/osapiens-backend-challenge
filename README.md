@@ -10,16 +10,28 @@ Once the server is running, you can access the **real-time workflow dashboard** 
 
 **🌐 Dashboard URL:** [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
 
+**📚 API Documentation:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+
 The dashboard provides:
+
 - Real-time workflow monitoring
 - Task status tracking
 - Interactive workflow creation
 - Visual progress indicators
 - Auto-refresh capabilities
 
+The API documentation provides:
+
+- Interactive Swagger UI for testing endpoints
+- Complete API reference with examples
+- Request/response schemas and validation rules
+- Try-it-out functionality for all endpoints
+
 ### Additional Documentation
 
 For comprehensive documentation, see the files in the [`documentation/`](./documentation/) folder:
+
+- [Implementation Report](./documentation/IMPLEMENTATION_REPORT.md) - Complete challenge completion report
 - [API Documentation](./documentation/API_DOCUMENTATION.md) - Complete API reference with examples
 - [Implementation Notes](./documentation/IMPLEMENTATION_NOTES.md) - Technical decisions and progress
 - [Validation Examples](./documentation/VALIDATION_EXAMPLES.md) - Input validation examples
@@ -363,6 +375,7 @@ Implement an API endpoint to retrieve the final results of a completed workflow.
 
 All detailed documentation is organized in the [`documentation/`](./documentation/) folder:
 
+- **[Implementation Report](./documentation/IMPLEMENTATION_REPORT.md)** - Complete challenge completion report with technical highlights and achievements
 - **[API Documentation](./documentation/API_DOCUMENTATION.md)** - Complete API reference with request/response examples, validation rules, and testing instructions
 - **[Implementation Notes](./documentation/IMPLEMENTATION_NOTES.md)** - Detailed technical decisions, architecture choices, and implementation progress
 - **[Validation Examples](./documentation/VALIDATION_EXAMPLES.md)** - Input validation examples and error handling patterns
@@ -370,12 +383,14 @@ All detailed documentation is organized in the [`documentation/`](./documentatio
 ### Testing the New Features
 
 1. **Dashboard Testing:**
+
    - Access the dashboard at [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
    - Create workflows using the interactive form
    - Monitor real-time task execution and status updates
    - View detailed task information and results
 
 2. **API Testing:**
+
    - Use the examples in [API Documentation](./documentation/API_DOCUMENTATION.md)
    - Test with cURL, Postman, or any HTTP client
    - Validate input using the provided validation examples

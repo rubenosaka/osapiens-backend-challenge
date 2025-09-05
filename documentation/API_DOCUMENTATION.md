@@ -21,6 +21,7 @@ Creates a new workflow with tasks based on the provided GeoJSON data.
 **Endpoint:** `POST /analysis`
 
 **Request Body:**
+
 ```json
 {
   "clientId": "string",
@@ -40,44 +41,30 @@ Creates a new workflow with tasks based on the provided GeoJSON data.
 ```
 
 **Validation Rules:**
+
 - `clientId`: Required, non-empty string
 - `geoJson`: Required, valid GeoJSON Polygon
   - Must be a closed polygon (first and last coordinates must be identical)
   - Must have at least 4 coordinate pairs
   - Coordinates must be valid longitude/latitude values
 
-**Success Response (201):**
+**Success Response (202):**
+
 ```json
 {
   "success": true,
-  "message": "Workflow created successfully",
-  "data": {
-    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
-    "status": "queued",
-    "tasks": [
-      {
-        "taskId": "task-1-id",
-        "taskType": "polygonArea",
-        "status": "queued"
-      },
-      {
-        "taskId": "task-2-id", 
-        "taskType": "dataAnalysis",
-        "status": "queued"
-      },
-      {
-        "taskId": "task-3-id",
-        "taskType": "reportGeneration", 
-        "status": "queued"
-      }
-    ]
-  }
+  "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+  "message": "Workflow created and tasks queued from YAML definition.",
+  "clientId": "test-client-123",
+  "geoJsonType": "Polygon",
+  "timestamp": "2024-01-15T10:30:00.000Z"
 }
 ```
 
 **Error Responses:**
 
 **400 - Validation Error:**
+
 ```json
 {
   "success": false,
@@ -91,12 +78,36 @@ Creates a new workflow with tasks based on the provided GeoJSON data.
 }
 ```
 
-**500 - Server Error:**
+**422 - Workflow Processing Error:**
+
 ```json
 {
   "success": false,
   "message": "Error processing workflow definition",
-  "error": "Internal server error"
+  "error": {
+    "originalError": "YAML parsing failed"
+  }
+}
+```
+
+**503 - Database Connection Error:**
+
+```json
+{
+  "success": false,
+  "message": "Database connection error",
+  "error": {
+    "retryAfter": 30
+  }
+}
+```
+
+**500 - Internal Server Error:**
+
+```json
+{
+  "success": false,
+  "message": "Internal server error while creating workflow"
 }
 ```
 
@@ -107,25 +118,28 @@ Retrieves the current status of a workflow.
 **Endpoint:** `GET /workflow/:id/status`
 
 **URL Parameters:**
+
 - `id`: Workflow ID (UUID format)
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
-  "data": {
-    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
-    "status": "in_progress",
-    "completedTasks": 2,
-    "totalTasks": 3,
-    "progress": 66.67
-  }
+  "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+  "status": "in_progress",
+  "completedTasks": 2,
+  "failedTasks": 0,
+  "totalTasks": 3,
+  "progress": 67,
+  "timestamp": "2024-01-15T10:30:00.000Z"
 }
 ```
 
 **Error Responses:**
 
 **400 - Invalid ID:**
+
 ```json
 {
   "success": false,
@@ -134,6 +148,7 @@ Retrieves the current status of a workflow.
 ```
 
 **404 - Workflow Not Found:**
+
 ```json
 {
   "success": false,
@@ -148,43 +163,55 @@ Retrieves the final results of a completed workflow.
 **Endpoint:** `GET /workflow/:id/results`
 
 **URL Parameters:**
+
 - `id`: Workflow ID (UUID format)
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
-  "data": {
+  "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+  "status": "completed",
+  "finalResult": {
     "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
     "status": "completed",
-    "finalResult": {
-      "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
-      "tasks": [
-        {
-          "taskId": "task-1-id",
-          "type": "polygonArea",
-          "output": "1234567.89"
-        },
-        {
-          "taskId": "task-2-id",
-          "type": "dataAnalysis", 
-          "output": "Analysis completed successfully"
-        },
-        {
-          "taskId": "task-3-id",
-          "type": "reportGeneration",
-          "output": "Final report generated"
-        }
-      ],
-      "finalReport": "Aggregated data and results"
+    "hasFailures": false,
+    "completedAt": "2024-01-15T10:35:00.000Z",
+    "tasks": [
+      {
+        "taskId": "task-1-id",
+        "type": "polygonArea",
+        "output": "1234567.89",
+        "status": "completed"
+      },
+      {
+        "taskId": "task-2-id",
+        "type": "dataAnalysis",
+        "output": "Analysis completed successfully",
+        "status": "completed"
+      },
+      {
+        "taskId": "task-3-id",
+        "type": "reportGeneration",
+        "output": "Final report generated",
+        "status": "completed"
+      }
+    ],
+    "summary": {
+      "totalTasks": 3,
+      "completedTasks": 3,
+      "failedTasks": 0
     }
-  }
+  },
+  "timestamp": "2024-01-15T10:35:00.000Z"
 }
 ```
 
 **Error Responses:**
 
 **400 - Invalid ID:**
+
 ```json
 {
   "success": false,
@@ -193,6 +220,7 @@ Retrieves the final results of a completed workflow.
 ```
 
 **404 - Workflow Not Found:**
+
 ```json
 {
   "success": false,
@@ -201,10 +229,15 @@ Retrieves the final results of a completed workflow.
 ```
 
 **400 - Workflow Not Completed:**
+
 ```json
 {
   "success": false,
-  "message": "Workflow has not finished yet"
+  "message": "Workflow has not finished yet",
+  "error": {
+    "currentStatus": "in_progress",
+    "message": "Results are only available for completed or failed workflows"
+  }
 }
 ```
 
@@ -215,16 +248,22 @@ Retrieves the final results of a completed workflow.
 **Endpoint:** `GET /api/stats`
 
 **Success Response (200):**
+
 ```json
 {
   "totalWorkflows": 15,
-  "completedWorkflows": 8,
-  "inProgressWorkflows": 3,
-  "failedWorkflows": 4,
   "totalTasks": 45,
-  "completedTasks": 32,
-  "inProgressTasks": 3,
-  "failedTasks": 10
+  "workflowsByStatus": [
+    { "status": "completed", "count": "8" },
+    { "status": "in_progress", "count": "3" },
+    { "status": "failed", "count": "4" }
+  ],
+  "tasksByStatus": [
+    { "status": "completed", "count": "32" },
+    { "status": "in_progress", "count": "3" },
+    { "status": "failed", "count": "10" }
+  ],
+  "timestamp": "2024-01-15T10:30:00.000Z"
 }
 ```
 
@@ -233,18 +272,22 @@ Retrieves the final results of a completed workflow.
 **Endpoint:** `GET /api/workflows`
 
 **Success Response (200):**
+
 ```json
-{
-  "workflows": [
-    {
-      "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
-      "status": "completed",
-      "createdAt": "2024-01-15T10:30:00.000Z",
-      "completedTasks": 3,
-      "totalTasks": 3
-    }
-  ]
-}
+[
+  {
+    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+    "clientId": "test-client-123",
+    "status": "completed",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "totalTasks": 3,
+    "completedTasks": 3,
+    "failedTasks": 0,
+    "inProgressTasks": 0,
+    "queuedTasks": 0,
+    "progress": 100
+  }
+]
 ```
 
 #### Get Workflow Tasks
@@ -252,30 +295,100 @@ Retrieves the final results of a completed workflow.
 **Endpoint:** `GET /api/workflows/:id/tasks`
 
 **URL Parameters:**
+
 - `id`: Workflow ID (UUID format)
 
 **Success Response (200):**
+
+```json
+[
+  {
+    "taskId": "task-1-id",
+    "taskType": "polygonArea",
+    "status": "completed",
+    "stepNumber": 1,
+    "progress": 100,
+    "dependency": null,
+    "result": {
+      "areaSqMeters": 1234567.89,
+      "units": "square meters"
+    },
+    "createdAt": "task-1-id"
+  },
+  {
+    "taskId": "task-2-id",
+    "taskType": "dataAnalysis",
+    "status": "completed",
+    "stepNumber": 2,
+    "progress": 100,
+    "dependency": "task-1-id",
+    "result": "Analysis completed successfully",
+    "createdAt": "task-2-id"
+  }
+]
+```
+
+#### Get Workflow Details
+
+**Endpoint:** `GET /api/workflows/:id/details`
+
+**URL Parameters:**
+
+- `id`: Workflow ID (UUID format)
+
+**Success Response (200):**
+
 ```json
 {
-  "tasks": [
-    {
-      "taskId": "task-1-id",
-      "taskType": "polygonArea",
-      "status": "completed",
-      "progress": 100,
-      "output": "1234567.89",
-      "error": null
-    },
-    {
-      "taskId": "task-2-id",
-      "taskType": "dataAnalysis",
-      "status": "completed", 
-      "progress": 100,
-      "output": "Analysis completed successfully",
-      "error": null
-    }
-  ]
+  "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+  "clientId": "test-client-123",
+  "status": "completed",
+  "finalResult": {
+    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+    "status": "completed",
+    "hasFailures": false,
+    "completedAt": "2024-01-15T10:35:00.000Z",
+    "tasks": [...],
+    "summary": {...}
+  },
+  "createdAt": "3433c76d-f226-4c91-afb5-7dfc7accab24"
 }
+```
+
+**Error Responses:**
+
+**404 - Workflow Not Found:**
+
+```json
+{
+  "error": "Workflow not found"
+}
+```
+
+### 5. Debug Endpoints
+
+#### Get Recent Tasks (Debug)
+
+**Endpoint:** `GET /debug/tasks`
+
+**Description:** Returns the 10 most recent tasks with their results. Useful for debugging and monitoring.
+
+**Success Response (200):**
+
+```json
+[
+  {
+    "taskId": "task-1-id",
+    "taskType": "polygonArea",
+    "status": "completed",
+    "stepNumber": 1,
+    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+    "result": {
+      "areaSqMeters": 1234567.89,
+      "units": "square meters"
+    }
+  }
+]
 ```
 
 ## Error Handling
@@ -298,10 +411,12 @@ All API endpoints follow a consistent error response format:
 ## Status Codes
 
 - `200` - Success
-- `201` - Created
-- `400` - Bad Request (validation errors)
-- `404` - Not Found
+- `202` - Accepted (workflow created and queued)
+- `400` - Bad Request (validation errors, workflow not completed)
+- `404` - Not Found (workflow not found)
+- `422` - Unprocessable Entity (workflow processing errors)
 - `500` - Internal Server Error
+- `503` - Service Unavailable (database connection errors)
 
 ## Rate Limiting
 
@@ -316,6 +431,7 @@ CORS is enabled for all origins in development mode.
 You can test the API endpoints using:
 
 1. **cURL:**
+
 ```bash
 curl -X POST http://localhost:3000/analysis \
   -H "Content-Type: application/json" \
