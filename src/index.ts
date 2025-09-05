@@ -17,7 +17,8 @@ app.use(express.static("public"));
 setupSwagger(app);
 
 app.get(["/dashboard", "/dashboard.html"], (_req, res) => {
-  res.sendFile(path.join(process.cwd(), "public", "dashboard.html"));
+  const dashboardPath = path.join(__dirname, "..", "public", "dashboard.html");
+  res.sendFile(dashboardPath);
 });
 
 app.use("/analysis", analysisRoutes);
