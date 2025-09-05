@@ -15,7 +15,7 @@ export enum WorkflowStatus {
 interface WorkflowStep {
   taskType: string;
   stepNumber: number;
-  dependsOn?: string; // Optional dependency on another task type
+  dependsOn?: string;
 }
 
 interface WorkflowDefinition {

@@ -171,32 +171,22 @@ describe("Job Implementations", () => {
   });
 
   describe("ReportGenerationJob", () => {
-    it("should generate report structure", async () => {
+    it("should have correct job structure", () => {
+      const job = new ReportGenerationJob();
+
+      expect(job).toBeDefined();
+      expect(typeof job.run).toBe("function");
+    });
+
+    it("should throw error when database is not available", async () => {
       mockTask.taskType = "reportGeneration";
       mockTask.stepNumber = 4;
 
       const job = new ReportGenerationJob();
 
-      // Mock the database calls by creating a simple test
-      // In a real test, you'd mock the AppDataSource
-      try {
-        const result = await job.run(mockTask);
-
-        expect(result).toHaveProperty("workflowId");
-        expect(result).toHaveProperty("tasks");
-        expect(result).toHaveProperty("finalReport");
-        expect(result).toHaveProperty("summary");
-
-        expect(Array.isArray(result.tasks)).toBe(true);
-        expect(typeof result.finalReport).toBe("string");
-        expect(result.summary).toHaveProperty("totalTasks");
-        expect(result.summary).toHaveProperty("completedTasks");
-        expect(result.summary).toHaveProperty("failedTasks");
-      } catch (error) {
-        // Expected to fail in test environment without proper DB setup
-        // This test mainly validates the job structure
-        expect(error).toBeDefined();
-      }
+      await expect(job.run(mockTask)).rejects.toThrow(
+        "Report generation failed"
+      );
     });
   });
 });

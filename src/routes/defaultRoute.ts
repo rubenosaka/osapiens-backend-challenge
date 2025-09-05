@@ -17,22 +17,20 @@ router.get("/", (req, res) => {
 
     const htmlContent = marked(data);
 
-    // Add CSS for dark mode and image resizing
     const styledHtml = `
       <html>
       <head>
         <style>
-          /* General dark mode styles */
           body {
-            background-color: #1a1a1a; /* Dark background */
-            color: #ffffff; /* Light text */
+            background-color: #1a1a1a;
+            color: #ffffff;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             line-height: 1.6;
           }
           a {
-            color: #1e90ff; /* Light blue links */
+            color: #1e90ff;
             text-decoration: none;
           }
           a:hover {
@@ -45,8 +43,8 @@ router.get("/", (req, res) => {
             margin: 20px auto;
           }
           pre {
-            background-color: #1e1e1e; /* Darker background for code blocks */
-            color: #dcdcdc; /* Light text for code */
+            background-color: #1e1e1e;
+            color: #dcdcdc;
             padding: 10px;
             border-radius: 5px;
             overflow-x: auto;
@@ -58,10 +56,10 @@ router.get("/", (req, res) => {
             border-radius: 3px;
           }
           h1, h2, h3, h4, h5, h6 {
-            color: #ffcc00; /* Highlighted headers */
+            color: #ffcc00;
           }
           blockquote {
-            color: #cccccc; /* Light gray for quotes */
+            color: #cccccc;
             border-left: 4px solid #ffcc00;
             padding-left: 10px;
             margin-left: 0;

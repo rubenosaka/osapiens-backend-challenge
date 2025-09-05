@@ -31,11 +31,9 @@ export class ReportGenerationJob implements Job {
     );
 
     try {
-      // Get all tasks from the same workflow
       const taskRepository = AppDataSource.getRepository(Task);
       const resultRepository = AppDataSource.getRepository(Result);
 
-      // First, get the workflow ID from the task
       const workflowId = task.workflow.workflowId;
       console.log(`[REPORT] Looking for tasks in workflow: ${workflowId}`);
 
@@ -45,19 +43,27 @@ export class ReportGenerationJob implements Job {
       });
 
       console.log(`[REPORT] Found ${workflowTasks.length} tasks in workflow`);
-      
-      // Check if all preceding tasks are completed
-      const precedingTasks = workflowTasks.filter(t => t.stepNumber < task.stepNumber);
-      const completedPrecedingTasks = precedingTasks.filter(t => t.status === 'completed');
-      const failedPrecedingTasks = precedingTasks.filter(t => t.status === 'failed');
-      
-      console.log(`[REPORT] Preceding tasks status: ${completedPrecedingTasks.length}/${precedingTasks.length} completed, ${failedPrecedingTasks.length} failed`);
-      
+
+      const precedingTasks = workflowTasks.filter(
+        (t) => t.stepNumber < task.stepNumber
+      );
+      const completedPrecedingTasks = precedingTasks.filter(
+        (t) => t.status === "completed"
+      );
+      const failedPrecedingTasks = precedingTasks.filter(
+        (t) => t.status === "failed"
+      );
+
+      console.log(
+        `[REPORT] Preceding tasks status: ${completedPrecedingTasks.length}/${precedingTasks.length} completed, ${failedPrecedingTasks.length} failed`
+      );
+
       if (failedPrecedingTasks.length > 0) {
-        console.log(`[REPORT] ⚠️  Warning: ${failedPrecedingTasks.length} preceding tasks failed, but continuing with report generation`);
+        console.log(
+          `[REPORT] ⚠️  Warning: ${failedPrecedingTasks.length} preceding tasks failed, but continuing with report generation`
+        );
       }
 
-      // Get results for all tasks
       const tasksWithResults: TaskReport[] = await Promise.all(
         workflowTasks.map(async (workflowTask) => {
           let output = null;
@@ -69,7 +75,7 @@ export class ReportGenerationJob implements Job {
               try {
                 output = JSON.parse(result.data);
               } catch (e) {
-                output = result.data; // Fallback to raw data
+                output = result.data;
               }
             }
           }
@@ -84,10 +90,8 @@ export class ReportGenerationJob implements Job {
         })
       );
 
-      // Generate summary
       const summary = this.generateSummary(tasksWithResults);
 
-      // Generate final report
       const finalReport = this.generateFinalReport(tasksWithResults, summary);
 
       const report: WorkflowReport = {
@@ -115,7 +119,6 @@ export class ReportGenerationJob implements Job {
     const completedTasks = tasks.filter((t) => t.status === "completed").length;
     const failedTasks = tasks.filter((t) => t.status === "failed").length;
 
-    // Extract specific data from different job types
     let totalArea = 0;
     const countriesFound: string[] = [];
 

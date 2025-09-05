@@ -12,7 +12,7 @@ router.get("/workflows", async (req: Request, res: Response) => {
     const taskRepository = AppDataSource.getRepository(Task);
 
     const workflows = await workflowRepository.find({
-      order: { workflowId: "DESC" },
+      order: { createdAt: "DESC" },
       take: 50,
     });
 
@@ -35,7 +35,7 @@ router.get("/workflows", async (req: Request, res: Response) => {
           workflowId: workflow.workflowId,
           clientId: workflow.clientId,
           status: workflow.status,
-          createdAt: workflow.workflowId, // Using workflowId as timestamp proxy
+          createdAt: workflow.createdAt,
           totalTasks: tasks.length,
           completedTasks,
           failedTasks,
@@ -56,7 +56,6 @@ router.get("/workflows", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/workflows/:id/tasks - Get detailed tasks for a workflow
 router.get("/workflows/:id/tasks", async (req: Request, res: Response) => {
   try {
     const workflowId = req.params.id;
@@ -92,7 +91,7 @@ router.get("/workflows/:id/tasks", async (req: Request, res: Response) => {
           progress: task.progress,
           dependency: task.dependency,
           result: result,
-          createdAt: task.taskId, // Using taskId as timestamp proxy
+          createdAt: task.taskId,
         };
       })
     );
@@ -104,7 +103,6 @@ router.get("/workflows/:id/tasks", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/workflows/:id/details - Get full workflow details
 router.get("/workflows/:id/details", async (req: Request, res: Response) => {
   try {
     const workflowId = req.params.id;
@@ -136,7 +134,6 @@ router.get("/workflows/:id/details", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/stats - Get system statistics
 router.get("/stats", async (req: Request, res: Response) => {
   try {
     const workflowRepository = AppDataSource.getRepository(Workflow);

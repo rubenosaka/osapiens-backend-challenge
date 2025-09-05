@@ -16,6 +16,9 @@ export class Workflow {
   @Column({ nullable: true, type: "text" })
   finalResult?: string;
 
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  createdAt!: Date;
+
   @OneToMany(() => Task, (task) => task.workflow)
   tasks!: Task[];
 }

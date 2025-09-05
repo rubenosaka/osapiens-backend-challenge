@@ -29,7 +29,7 @@ export class Task {
   stepNumber!: number;
 
   @Column({ nullable: true })
-  dependency?: string; // References another task's taskId
+  dependency?: string;
 
   @ManyToOne(() => Workflow, (workflow) => workflow.tasks)
   workflow!: Workflow;
