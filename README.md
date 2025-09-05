@@ -8,9 +8,9 @@
 
 Once the server is running, you can access the **real-time workflow dashboard** at:
 
-**🌐 Dashboard URL:** [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+**🌐 Dashboard URL:** [/dashboard](/dashboard)
 
-**📚 API Documentation:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+**📚 API Documentation:** [/api-docs](/api-docs)
 
 The dashboard provides:
 
@@ -166,7 +166,7 @@ src
 3. **Create a Workflow (e.g. via `/analysis`):**
 
    ```bash
-   curl -X POST http://localhost:3000/analysis \
+   curl -X POST /analysis \
    -H "Content-Type: application/json" \
    -d '{
     "clientId": "client123",
@@ -384,7 +384,7 @@ All detailed documentation is organized in the [`documentation/`](./documentatio
 
 1. **Dashboard Testing:**
 
-   - Access the dashboard at [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+   - Access the dashboard at [/dashboard](/dashboard)
    - Create workflows using the interactive form
    - Monitor real-time task execution and status updates
    - View detailed task information and results

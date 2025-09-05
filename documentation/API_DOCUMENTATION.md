@@ -5,7 +5,7 @@ This document provides comprehensive documentation for all API endpoints in the 
 ## Base URL
 
 ```
-http://localhost:3000
+/ (relative to your deployment)
 ```
 
 ## Authentication
@@ -433,7 +433,7 @@ You can test the API endpoints using:
 1. **cURL:**
 
 ```bash
-curl -X POST http://localhost:3000/analysis \
+curl -X POST /analysis \
   -H "Content-Type: application/json" \
   -d '{
     "clientId": "test-client",
@@ -452,4 +452,4 @@ curl -X POST http://localhost:3000/analysis \
 
 2. **Postman/Insomnia:** Import the endpoints and test with the provided examples.
 
-3. **Dashboard:** Use the web interface at `http://localhost:3000/dashboard` for interactive testing.
+3. **Dashboard:** Use the web interface at `/dashboard` for interactive testing.

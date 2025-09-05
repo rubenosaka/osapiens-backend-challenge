@@ -8,8 +8,8 @@ info:
     email: ruben.gonzalez.aranda@example.com
 
 servers:
-  - url: http://localhost:3000
-    description: Development server
+  - url: /
+    description: Relative to your deployment
 
 paths:
   /analysis:
