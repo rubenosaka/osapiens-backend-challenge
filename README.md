@@ -1,6 +1,28 @@
 # Backend Coding Challenge
 
-> **📝 Implementation Progress**: See [IMPLEMENTATION_NOTES.md](./IMPLEMENTATION_NOTES.md) for detailed progress and technical decisions.
+> **📝 Implementation Progress**: See [IMPLEMENTATION_NOTES.md](./documentation/IMPLEMENTATION_NOTES.md) for detailed progress and technical decisions.
+
+## 🚀 Quick Start
+
+### Access the Dashboard
+
+Once the server is running, you can access the **real-time workflow dashboard** at:
+
+**🌐 Dashboard URL:** [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+
+The dashboard provides:
+- Real-time workflow monitoring
+- Task status tracking
+- Interactive workflow creation
+- Visual progress indicators
+- Auto-refresh capabilities
+
+### Additional Documentation
+
+For comprehensive documentation, see the files in the [`documentation/`](./documentation/) folder:
+- [API Documentation](./documentation/API_DOCUMENTATION.md) - Complete API reference with examples
+- [Implementation Notes](./documentation/IMPLEMENTATION_NOTES.md) - Technical decisions and progress
+- [Validation Examples](./documentation/VALIDATION_EXAMPLES.md) - Input validation examples
 
 ## Getting Started
 
@@ -332,5 +354,36 @@ Implement an API endpoint to retrieve the final results of a completed workflow.
 - **Documentation:**
   - Update the README file to include instructions for testing the new features.
   - Document the API endpoints with request and response examples.
+
+---
+
+## 📚 Documentation
+
+### Complete Documentation
+
+All detailed documentation is organized in the [`documentation/`](./documentation/) folder:
+
+- **[API Documentation](./documentation/API_DOCUMENTATION.md)** - Complete API reference with request/response examples, validation rules, and testing instructions
+- **[Implementation Notes](./documentation/IMPLEMENTATION_NOTES.md)** - Detailed technical decisions, architecture choices, and implementation progress
+- **[Validation Examples](./documentation/VALIDATION_EXAMPLES.md)** - Input validation examples and error handling patterns
+
+### Testing the New Features
+
+1. **Dashboard Testing:**
+   - Access the dashboard at [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+   - Create workflows using the interactive form
+   - Monitor real-time task execution and status updates
+   - View detailed task information and results
+
+2. **API Testing:**
+   - Use the examples in [API Documentation](./documentation/API_DOCUMENTATION.md)
+   - Test with cURL, Postman, or any HTTP client
+   - Validate input using the provided validation examples
+
+3. **Workflow Testing:**
+   - Create workflows with different GeoJSON polygons
+   - Test task dependencies and execution order
+   - Verify final result aggregation
+   - Test error handling with invalid inputs
 
 ---
